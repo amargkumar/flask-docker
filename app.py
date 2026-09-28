@@ -1,5 +1,7 @@
+# -*- coding: utf-8 -*-
+from __future__ import unicode_literals
 import platform, random, socket, time
-from importlib.metadata import version
+import flask
 from flask import Flask, jsonify, render_template_string, request
 
 app = Flask(__name__)
@@ -12,7 +14,7 @@ FACTS = [
     "Docker was open-sourced in 2013.",
     "Docker's whale mascot is named Moby Dock.",
     "Docker caches each build step, so unchanged steps are skipped on rebuild.",
-    "-p 1139:5000 maps port 1139 on the server to port 5000 inside the container.",
+    "Python 2 reached end of life on January 1, 2020, yet this container still runs it.",
 ]
 
 def os_name():
@@ -21,7 +23,7 @@ def os_name():
             for line in f:
                 if line.startswith("PRETTY_NAME="):
                     return line.split("=", 1)[1].strip().strip('"')
-    except OSError:
+    except (IOError, OSError):
         pass
     return platform.system()
 
@@ -31,8 +33,8 @@ def info():
         "container_id": socket.gethostname(),
         "os": os_name(),
         "python": platform.python_version(),
-        "flask": version("flask"),
-        "uptime": f"{up // 3600}h {up % 3600 // 60}m {up % 60}s",
+        "flask": flask.__version__,
+        "uptime": "%dh %dm %ds" % (up // 3600, up % 3600 // 60, up % 60),
         "visits": visits,
     }
 
